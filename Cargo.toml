@@ -10,4 +10,4 @@ bevy = "0.11"
 bevy_egui = "0.22"
 bevy-inspector-egui = "0.20"
 dotenv = "0.15.0"
-bevy_rapier2d = { version = "*", features = [ "simd-stable", "debug-render-2d" ] }
+bevy_rapier2d = { version = "*", features = [ "simd-stable", "debug-render-2d", "parallel" ] }
