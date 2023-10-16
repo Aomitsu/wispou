@@ -22,7 +22,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
           - macos-latest
           - windows-latest
     runs-on: ${{ matrix.os }}
@@ -44,4 +43,18 @@ jobs:
           include: assets
           leading-dir: true
           # (required) GitHub token for uploading assets to GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
+  upload-assets-linux:
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install package
+        run: |
+          sudo apt-get -y g++ pkg-config libx11-dev libasound2-dev libudev-dev
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: wispou
+          include: assets
+          leading-dir: true
           token: ${{ secrets.GITHUB_TOKEN }}
