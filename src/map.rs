@@ -1,16 +1,15 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use rand::prelude::*;
 use bevy_rapier2d::prelude::*;
+use rand::prelude::*;
 
 #[derive(Debug, Clone)]
 pub enum MapType {
     Flat,
     Perlin,
 }
-#[derive(Clone, Copy)]
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum BlockType {
     Dirt,
     Grass,
@@ -18,8 +17,7 @@ pub enum BlockType {
 
 #[derive(Component)]
 pub struct WorldComponent;
-#[derive(Component)]
-#[derive(Debug, Clone)]
+#[derive(Component, Debug, Clone)]
 pub struct World {
     seed: i32,
     map_type: MapType,
@@ -32,7 +30,7 @@ pub struct ChunkComponent;
 pub struct Chunk {
     world_relative_vec: IVec2,
     blocks: HashMap<IVec2, Block>,
-    chunk_id: i32
+    chunk_id: i32,
 }
 #[derive(Component)]
 pub struct BlockComponent;
@@ -66,17 +64,13 @@ impl World {
         match self.map_type {
             MapType::Flat => {
                 let mut chunk = Chunk::new(chunk_id);
-                    chunk.fill_blocks(
-                        BlockType::Grass,
-                        Vec2::new(0.0, 64.0),
-                        Vec2::new(15.0, 64.0),
-                    );
-                    chunk.fill_blocks(
-                        BlockType::Dirt, 
-                        Vec2::new(0.0, 60.0), 
-                        Vec2::new(15.0, 63.0)
-                    );
-                
+                chunk.fill_blocks(
+                    BlockType::Grass,
+                    Vec2::new(0.0, 64.0),
+                    Vec2::new(15.0, 64.0),
+                );
+                chunk.fill_blocks(BlockType::Dirt, Vec2::new(0.0, 60.0), Vec2::new(15.0, 63.0));
+
                 self.chunks.insert(chunk_id, chunk);
             }
             MapType::Perlin => todo!("Perlin generation is not possible yet"),
@@ -86,11 +80,7 @@ impl World {
 
     pub fn update(&self, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
         for ele in &self.chunks {
-            ele.1.generate(
-                &mut commands,
-                self.entity,
-                &asset_server
-            )
+            ele.1.generate(&mut commands, self.entity, &asset_server)
         }
     }
 }
@@ -103,7 +93,7 @@ impl Chunk {
                 y: 0,
             },
             blocks: HashMap::new(),
-            chunk_id
+            chunk_id,
         }
     }
     pub fn fill_blocks(&mut self, block_type: BlockType, from: Vec2, to: Vec2) -> &mut Self {
@@ -116,27 +106,50 @@ impl Chunk {
         }
         self
     }
-    pub fn generate(&self, mut commands: &mut Commands, world_entity: Entity, asset_server: &Res<AssetServer>){
+    pub fn generate(
+        &self,
+        mut commands: &mut Commands,
+        world_entity: Entity,
+        asset_server: &Res<AssetServer>,
+    ) {
         let texture_grass_handle: Handle<Image> = asset_server.load("dirt.png");
         //commands.get_entity(world_entity).unwrap().add_child(child);
-        let chunk_entity = commands.spawn((SpatialBundle{
-            //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
-            transform: Transform::from_xyz((64.0*16.0) * self.chunk_id as f32, -200.0, 0.0),
-            ..default()
-        }, ChunkComponent)).id();
-        for (coord, block) in &self.blocks {
-            println!("{:?}", coord);
-            let temp_block = commands.spawn((
-                SpriteBundle {
-                    texture: texture_grass_handle.clone(),
-                    //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
-                    transform: Transform::from_xyz(coord.x as f32 * 64.0, coord.y as f32 * 64.0, 0.0),
+        let chunk_entity = commands
+            .spawn((
+                SpatialBundle {
+                    //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
+                    transform: Transform::from_xyz(
+                        (64.0 * 16.0) * self.chunk_id as f32,
+                        -200.0,
+                        0.0,
+                    ),
                     ..default()
                 },
-                RigidBody::Fixed,
-                Collider::cuboid(32.0, 32.0)
-            )).id();
-            commands.get_entity(chunk_entity).unwrap().add_child(temp_block);
+                ChunkComponent,
+            ))
+            .id();
+        for (coord, block) in &self.blocks {
+            println!("{:?}", coord);
+            let temp_block = commands
+                .spawn((
+                    SpriteBundle {
+                        texture: texture_grass_handle.clone(),
+                        //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
+                        transform: Transform::from_xyz(
+                            coord.x as f32 * 64.0,
+                            coord.y as f32 * 64.0,
+                            0.0,
+                        ),
+                        ..default()
+                    },
+                    RigidBody::Fixed,
+                    Collider::cuboid(32.0, 32.0),
+                ))
+                .id();
+            commands
+                .get_entity(chunk_entity)
+                .unwrap()
+                .add_child(temp_block);
         }
     }
     pub fn id(&self) -> &Self {
