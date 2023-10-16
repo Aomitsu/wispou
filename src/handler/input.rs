@@ -3,7 +3,6 @@ use bevy_rapier2d::prelude::*;
 
 use crate::Player;
 
-
 pub fn move_character(
     keyboard: Res<Input<KeyCode>>,
     mut query_atlas_sprite: Query<&mut TextureAtlasSprite, With<Player>>,

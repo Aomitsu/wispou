@@ -1,12 +1,16 @@
-use bevy::{prelude::*, diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, window::PresentMode};
-use bevy_rapier2d::prelude::*;
+use bevy::{
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    prelude::*,
+    window::PresentMode,
+};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_rapier2d::prelude::*;
 use dotenv::dotenv;
 use map::MapType;
 
+mod handler;
 mod map;
 mod ui;
-mod handler;
 mod utils;
 
 #[derive(Component)]
@@ -18,46 +22,42 @@ fn main() {
     dotenv().ok();
     println!("Hello, world!");
     App::new()
-    .add_plugins(
-        DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    present_mode: PresentMode::Immediate,
-                    title: "Wispou".into(),
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        present_mode: PresentMode::Immediate,
+                        title: "Wispou".into(),
+                        ..default()
+                    }),
                     ..default()
-                }),
-                ..default()
-            })
-            .set(ImagePlugin::default_nearest()),
-    )
+                })
+                .set(ImagePlugin::default_nearest()),
+        )
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_systems(Startup, (setup, handler::player::spawn_player))
-        .add_systems(Update, (
-            handler::input::move_character,
-            handler::camera::update_camera,
-            ui::debug_ui
-        ))
+        .add_systems(
+            Update,
+            (
+                handler::input::move_character,
+                handler::camera::update_camera,
+                ui::debug_ui,
+            ),
+        )
         .run();
 }
 
-fn setup(mut commands: Commands,
-        asset_server: Res<AssetServer>,
-    ) {
-
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((Camera2dBundle::default(), Camera));
 
-    let texture_grass_handle: Handle<Image> = asset_server.load("dirt.png");
+    let _texture_grass_handle: Handle<Image> = asset_server.load("dirt.png");
 
-    map::World::new(
-        MapType::Flat,
-        None,
-        commands
-    ).generate_chunk(1);
-    
+    map::World::new(MapType::Flat, None, commands).generate_chunk(1);
+
     /*  loop 10 times
     for i in 0..35 {
         // transform i to f32
@@ -85,9 +85,4 @@ fn setup(mut commands: Commands,
             Collider::cuboid(32.0, 32.0)
         ));
     }*/
-
-
-
 }
-
-

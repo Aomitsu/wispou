@@ -1,3 +1,3 @@
 pub mod camera;
-pub mod player;
 pub mod input;
+pub mod player;
