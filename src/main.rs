@@ -20,13 +20,14 @@ struct Camera;
 
 fn main() {
     dotenv().ok();
-    println!("Hello, world!");
+
     App::new()
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Immediate,
+                        resizable: false,
                         title: "Wispou".into(),
                         ..default()
                     }),
@@ -37,7 +38,6 @@ fn main() {
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(WorldInspectorPlugin::new())
-        .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_systems(Startup, (setup, handler::player::spawn_player))
         .add_systems(
@@ -55,11 +55,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((Camera2dBundle::default(), Camera));
 
     let mut binding = map::World::new(MapType::Flat, None, &mut commands);
-    let mut test = binding.generate_chunk(1);
-    //test = binding.generate_chunk(0);
-    //test = binding.generate_chunk(2);
-    test = binding.generate_chunk(-1);
+    let mut test = binding.generate_chunk(-1);
+    test = binding.generate_chunk(0);
+
     test.update(&mut commands, asset_server);
+
     println!("{:?}", test);
 
     /*  loop 10 times

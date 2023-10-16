@@ -4,6 +4,15 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
+const CHUNK_SIZE: i32 = 16;
+const BLOCK_SIZE: i32 = 64;
+
+pub struct PlayerCoords {
+    pub x: f32,
+    pub y: f32,
+    pub actual_chunk_id: i32,
+}
+
 #[derive(Debug, Clone)]
 pub enum MapType {
     Flat,
@@ -45,7 +54,7 @@ impl World {
     pub fn new(map_type: MapType, mut seed: Option<i32>, mut commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
         if seed.is_none() {
-            seed = Some(rng.gen_range((10 * 10 ^ 5)..(10 * 10 ^ 25)));
+            seed = Some(rng.gen_range((10 * 10_i32.pow(2))..(10 * 10_i32.pow(8))));
         };
 
         let entity_id = commands.spawn(WorldComponent).id();
@@ -151,9 +160,6 @@ impl Chunk {
                 .unwrap()
                 .add_child(temp_block);
         }
-    }
-    pub fn id(&self) -> &Self {
-        self
     }
 }
 
