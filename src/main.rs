@@ -54,9 +54,13 @@ fn main() {
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((Camera2dBundle::default(), Camera));
 
-    let _texture_grass_handle: Handle<Image> = asset_server.load("dirt.png");
-
-    map::World::new(MapType::Flat, None, commands).generate_chunk(1);
+    let mut binding = map::World::new(MapType::Flat, None, &mut commands);
+    let mut test = binding.generate_chunk(1);
+    //test = binding.generate_chunk(0);
+    //test = binding.generate_chunk(2);
+    test = binding.generate_chunk(-1);
+    test.update(&mut commands, asset_server);
+    println!("{:?}", test);
 
     /*  loop 10 times
     for i in 0..35 {
