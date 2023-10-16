@@ -50,8 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install package
-        run: |
-          sudo apt-get -y g++ pkg-config libx11-dev libasound2-dev libudev-dev
+        run: sudo apt-get -y install g++ pkg-config libx11-dev libasound2-dev libudev-dev
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: wispou
