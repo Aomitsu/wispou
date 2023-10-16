@@ -15,8 +15,9 @@ pub fn spawn_player(
     commands.spawn((SpriteSheetBundle {
         texture_atlas: texture_atlas_handle,
         sprite: TextureAtlasSprite::new(0),
+        transform: Transform::from_xyz(0.0, 500.0, 0.0),
         ..default()
-    },  Player,
+        },Player,
         RigidBody::Dynamic,
         LockedAxes::ROTATION_LOCKED,
         ExternalImpulse::default(),
