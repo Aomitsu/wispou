@@ -20,7 +20,7 @@ struct Camera;
 
 fn main() {
     dotenv().ok();
-
+    print!("Hello Wispou ! V 0.0.1");
     App::new()
         .add_plugins(
             DefaultPlugins
