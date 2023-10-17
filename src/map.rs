@@ -6,9 +6,10 @@ use rand::prelude::*;
 
 use crate::global::GlobalRessources;
 
-const CHUNK_SIZE: i32 = 16;
-const BLOCK_SIZE: i32 = 64;
+pub const CHUNK_SIZE: i32 = 16;
+pub const BLOCK_SIZE: i32 = 64;
 
+#[derive(Debug, Clone)]
 pub struct PlayerCoords {
     pub x: f32,
     pub y: f32,
@@ -24,6 +25,7 @@ pub enum MapType {
 pub enum BlockType {
     Dirt,
     Grass,
+    Air,
 }
 
 #[derive(Component)]
@@ -88,6 +90,7 @@ impl World {
                 chunk.fill_blocks(BlockType::Dirt, Vec2::new(0.0, 60.0), Vec2::new(15.0, 63.0));
 
                 self.chunks.insert(chunk_id, chunk);
+                debug!("Generated chunk {}", chunk_id);
             }
             MapType::Perlin => todo!("Perlin generation is not possible yet"),
         }
@@ -102,19 +105,44 @@ impl World {
             ele.1.generate(&mut commands, self.entity, &asset_server);
         }
     }*/
-    pub fn load_chunk(&mut self, chunk_id: i32, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
+    pub fn load_chunk(&mut self, chunk_id: i32, commands: &mut Commands, asset_server: &Res<AssetServer>) -> &mut Self {
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
-                chunk.generate(commands, self.entity, &asset_server);
+                if chunk.entity.is_none() {
+                    chunk.entity = Some( chunk.generate(commands, self.entity, &asset_server));
+                    debug!("Loaded chunk {}", chunk_id);
+                }
             } else {
                 panic!("Chunk doesn't exist")
             }
         } else {
-            todo!("Generate chunk");
+            self.generate_chunk(chunk_id).load_chunk(chunk_id, commands, asset_server);
         }
+        self
     }
-    pub fn unload_chunk(&mut self, chunk_id: i32) {
-        
+    pub fn unload_chunk(&mut self, chunk_id: i32,  commands: &mut Commands) -> &mut Self  {
+        if self.chunk_exists(chunk_id) {
+            if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+                if let Some(chunk_entity) = chunk.entity {
+                    commands.get_entity(chunk_entity).unwrap().despawn_recursive();
+                    chunk.entity = None;
+                    debug!("Unloaded chunk {}", chunk_id);
+                }
+            }
+        }
+        self
+    }
+    pub fn get_block(&self, coord: IVec2) -> Block {
+        let block_chunk = (coord.x as f32 / CHUNK_SIZE as f32).floor() as i32;
+        if self.chunk_exists(block_chunk) {
+            if let Some(chunk) = self.chunks.get(&block_chunk) {
+                chunk.blocks.get(&IVec2::new(&coord.x / CHUNK_SIZE, &coord.y / CHUNK_SIZE)).unwrap().clone()
+            } else {
+                Block::air(coord)
+            }
+        } else {
+            Block::air(coord)
+        }
     }
 }
 
@@ -164,13 +192,13 @@ impl Chunk {
             ))
             .id();
         for (coord, block) in &self.blocks {
-            println!("{:?}", coord);
             let temp_block = commands
                 .spawn((
                     SpriteBundle {
                         texture: match block.block_type {
                             BlockType::Dirt => texture_dirt_handle.clone(),
                             BlockType::Grass => texture_grass_handle.clone(),
+                            _ => texture_dirt_handle.clone(),
                         },
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
                         transform: Transform::from_xyz(
@@ -199,6 +227,12 @@ impl Block {
         Self {
             chunk_relative_vec: chunk_coord,
             block_type,
+        }
+    }
+    pub fn air(chunk_coord: IVec2) -> Self {
+        Self {
+            chunk_relative_vec: chunk_coord,
+            block_type: BlockType::Air,
         }
     }
 }

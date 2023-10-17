@@ -4,7 +4,7 @@ use bevy::{
 };
 use bevy_egui::{egui, EguiContexts};
 
-use crate::Player;
+use crate::handler::player::Player;
 
 pub fn debug_ui(
     mut contexts: EguiContexts,

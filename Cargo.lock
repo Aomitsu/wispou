@@ -4237,6 +4237,7 @@ dependencies = [
  "bevy_egui",
  "bevy_rapier2d",
  "dotenv",
+ "log",
  "rand",
 ]
 

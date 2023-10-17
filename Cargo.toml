@@ -12,6 +12,7 @@ bevy-inspector-egui = "0.20"
 dotenv = "0.15.0"
 bevy_rapier2d = { version = "*", features = [ "simd-stable", "debug-render-2d", "parallel" ] }
 rand = "0.8"
+log = "0.4"
 
 [profile.dev.package.bevy_rapier3d]
 opt-level = 3

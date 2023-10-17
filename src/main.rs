@@ -9,6 +9,8 @@ use dotenv::dotenv;
 use global::GlobalRessources;
 use map::MapType;
 
+use crate::handler::player;
+
 mod handler;
 mod map;
 mod ui;
@@ -48,6 +50,8 @@ fn main() {
                 handler::input::move_character,
                 handler::camera::update_camera,
                 ui::debug_ui,
+                player::update_player,
+                player::update_player_world
             ),
         )
         .run();
