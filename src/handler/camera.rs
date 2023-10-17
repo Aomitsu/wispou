@@ -1,5 +1,6 @@
-use crate::Player;
 use bevy::prelude::*;
+
+use super::player::Player;
 
 pub fn update_camera(
     mut query_camera: Query<&mut Transform, With<Camera>>,

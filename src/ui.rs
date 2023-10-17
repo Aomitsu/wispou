@@ -40,6 +40,10 @@ pub fn debug_ui(
                 "World Y: {:?}",
                 (transform_player.translation().y / 64.0)
             ));
+            ui.label(format!(
+                "Chunk: {:?}", 
+                ((transform_player.translation().x / 64.0) / 16.0).floor()
+            ));
         });
 }
 

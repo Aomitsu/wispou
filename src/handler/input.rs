@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::Player;
+use super::player::Player;
 
 pub fn move_character(
     keyboard: Res<Input<KeyCode>>,

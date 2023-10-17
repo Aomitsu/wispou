@@ -1,7 +1,12 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::query::WorldQuery};
 use bevy_rapier2d::prelude::*;
 
-use crate::Player;
+use crate::map::PlayerCoords;
+
+#[derive(Component)]
+pub struct Player {
+    pub world_info: PlayerCoords
+}
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -32,4 +37,13 @@ pub fn spawn_player(
             ..default()
         },
     ));
+}
+
+pub fn update_player(
+    mut commands: Commands,
+    mut query_gt_player: Query<&mut GlobalTransform, With<Player>>,
+-
+){
+    let transform_player = query_gt_player.single_mut();
+    
 }

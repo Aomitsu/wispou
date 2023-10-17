@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::query::WorldQuery};
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
+
+use crate::global::GlobalRessources;
 
 const CHUNK_SIZE: i32 = 16;
 const BLOCK_SIZE: i32 = 64;
@@ -10,7 +12,7 @@ const BLOCK_SIZE: i32 = 64;
 pub struct PlayerCoords {
     pub x: f32,
     pub y: f32,
-    pub actual_chunk_id: i32,
+    pub chunk_id: i32,
 }
 
 #[derive(Debug, Clone)]
@@ -40,6 +42,8 @@ pub struct Chunk {
     world_relative_vec: IVec2,
     blocks: HashMap<IVec2, Block>,
     chunk_id: i32,
+    /// Doesn't exist if the chunk is not loaded
+    entity: Option<Entity>
 }
 #[derive(Component)]
 pub struct BlockComponent;
@@ -51,6 +55,7 @@ pub struct Block {
 }
 
 impl World {
+
     pub fn new(map_type: MapType, mut seed: Option<i32>, mut commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
         if seed.is_none() {
@@ -65,7 +70,9 @@ impl World {
             chunks: HashMap::new(),
             entity: entity_id,
         }
+        
     }
+    
     pub fn generate_chunk(&mut self, chunk_id: i32) -> &mut Self {
         if self.chunks.contains_key(&chunk_id) {
             panic!("Chunk already exists")
@@ -86,11 +93,28 @@ impl World {
         }
         self
     }
+    pub fn chunk_exists(&self, chunk_id: i32) -> bool {
+        self.chunks.contains_key(&chunk_id)
+    }
 
-    pub fn update(&self, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
+    /*pub fn update(&self, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
         for ele in &self.chunks {
-            ele.1.generate(&mut commands, self.entity, &asset_server)
+            ele.1.generate(&mut commands, self.entity, &asset_server);
         }
+    }*/
+    pub fn load_chunk(&mut self, chunk_id: i32, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
+        if self.chunk_exists(chunk_id) {
+            if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+                chunk.generate(commands, self.entity, &asset_server);
+            } else {
+                panic!("Chunk doesn't exist")
+            }
+        } else {
+            todo!("Generate chunk");
+        }
+    }
+    pub fn unload_chunk(&mut self, chunk_id: i32) {
+        
     }
 }
 
@@ -103,6 +127,7 @@ impl Chunk {
             },
             blocks: HashMap::new(),
             chunk_id,
+            entity: None,
         }
     }
     pub fn fill_blocks(&mut self, block_type: BlockType, from: Vec2, to: Vec2) -> &mut Self {
@@ -116,12 +141,13 @@ impl Chunk {
         self
     }
     pub fn generate(
-        &self,
+        &mut self,
         mut commands: &mut Commands,
         world_entity: Entity,
         asset_server: &Res<AssetServer>,
-    ) {
-        let texture_grass_handle: Handle<Image> = asset_server.load("dirt.png");
+    ) -> Entity {
+        let texture_dirt_handle: Handle<Image> = asset_server.load("dirt.png");
+        let texture_grass_handle: Handle<Image> = asset_server.load("grass.png");
         //commands.get_entity(world_entity).unwrap().add_child(child);
         let chunk_entity = commands
             .spawn((
@@ -142,7 +168,10 @@ impl Chunk {
             let temp_block = commands
                 .spawn((
                     SpriteBundle {
-                        texture: texture_grass_handle.clone(),
+                        texture: match block.block_type {
+                            BlockType::Dirt => texture_dirt_handle.clone(),
+                            BlockType::Grass => texture_grass_handle.clone(),
+                        },
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
                         transform: Transform::from_xyz(
                             coord.x as f32 * 64.0,
@@ -159,7 +188,9 @@ impl Chunk {
                 .get_entity(chunk_entity)
                 .unwrap()
                 .add_child(temp_block);
-        }
+        };
+        self.entity = Some(chunk_entity);
+        chunk_entity
     }
 }
 
