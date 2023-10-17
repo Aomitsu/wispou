@@ -47,6 +47,6 @@ pub fn debug_ui(
         });
 }
 
-pub fn start_menu(mut contexts: EguiContexts) {
+pub fn start_menu(_contexts: EguiContexts) {
     //egui::Window::new("Wispou")
 }

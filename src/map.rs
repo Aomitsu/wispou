@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use bevy::{ecs::query::WorldQuery, prelude::*};
+use bevy::{prelude::*};
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
-use crate::global::GlobalRessources;
+
 
 pub const CHUNK_SIZE: i32 = 16;
 pub const BLOCK_SIZE: i32 = 64;
@@ -57,7 +57,7 @@ pub struct Block {
 }
 
 impl World {
-    pub fn new(map_type: MapType, mut seed: Option<i32>, mut commands: &mut Commands) -> Self {
+    pub fn new(map_type: MapType, mut seed: Option<i32>, commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
         if seed.is_none() {
             seed = Some(rng.gen_range((10 * 10_i32.pow(2))..(10 * 10_i32.pow(8))));
@@ -181,8 +181,8 @@ impl Chunk {
     }
     pub fn generate(
         &mut self,
-        mut commands: &mut Commands,
-        world_entity: Entity,
+        commands: &mut Commands,
+        _world_entity: Entity,
         asset_server: &Res<AssetServer>,
     ) -> Entity {
         let texture_dirt_handle: Handle<Image> = asset_server.load("dirt.png");
