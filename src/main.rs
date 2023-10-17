@@ -11,12 +11,11 @@ use map::MapType;
 
 use crate::handler::player;
 
+mod global;
 mod handler;
 mod map;
 mod ui;
 mod utils;
-mod global;
-
 
 #[derive(Component)]
 struct Camera;
@@ -51,16 +50,13 @@ fn main() {
                 handler::camera::update_camera,
                 ui::debug_ui,
                 player::update_player,
-                player::update_player_world
+                player::update_player_world,
             ),
         )
         .run();
 }
 
-fn setup(
-    mut commands: Commands, 
-    mut globalres: ResMut<GlobalRessources>
-) {
+fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
     commands.spawn((Camera2dBundle::default(), Camera));
     // Create the map::World instance
     globalres.world = Some(map::World::new(MapType::Flat, None, &mut commands));

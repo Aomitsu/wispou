@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use bevy::{prelude::*, ecs::query::WorldQuery};
+use bevy::{ecs::query::WorldQuery, prelude::*};
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
@@ -45,7 +45,7 @@ pub struct Chunk {
     blocks: HashMap<IVec2, Block>,
     chunk_id: i32,
     /// Doesn't exist if the chunk is not loaded
-    entity: Option<Entity>
+    entity: Option<Entity>,
 }
 #[derive(Component)]
 pub struct BlockComponent;
@@ -57,7 +57,6 @@ pub struct Block {
 }
 
 impl World {
-
     pub fn new(map_type: MapType, mut seed: Option<i32>, mut commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
         if seed.is_none() {
@@ -72,9 +71,8 @@ impl World {
             chunks: HashMap::new(),
             entity: entity_id,
         }
-        
     }
-    
+
     pub fn generate_chunk(&mut self, chunk_id: i32) -> &mut Self {
         if self.chunks.contains_key(&chunk_id) {
             panic!("Chunk already exists")
@@ -105,26 +103,35 @@ impl World {
             ele.1.generate(&mut commands, self.entity, &asset_server);
         }
     }*/
-    pub fn load_chunk(&mut self, chunk_id: i32, commands: &mut Commands, asset_server: &Res<AssetServer>) -> &mut Self {
+    pub fn load_chunk(
+        &mut self,
+        chunk_id: i32,
+        commands: &mut Commands,
+        asset_server: &Res<AssetServer>,
+    ) -> &mut Self {
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
                 if chunk.entity.is_none() {
-                    chunk.entity = Some( chunk.generate(commands, self.entity, &asset_server));
+                    chunk.entity = Some(chunk.generate(commands, self.entity, &asset_server));
                     debug!("Loaded chunk {}", chunk_id);
                 }
             } else {
                 panic!("Chunk doesn't exist")
             }
         } else {
-            self.generate_chunk(chunk_id).load_chunk(chunk_id, commands, asset_server);
+            self.generate_chunk(chunk_id)
+                .load_chunk(chunk_id, commands, asset_server);
         }
         self
     }
-    pub fn unload_chunk(&mut self, chunk_id: i32,  commands: &mut Commands) -> &mut Self  {
+    pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
                 if let Some(chunk_entity) = chunk.entity {
-                    commands.get_entity(chunk_entity).unwrap().despawn_recursive();
+                    commands
+                        .get_entity(chunk_entity)
+                        .unwrap()
+                        .despawn_recursive();
                     chunk.entity = None;
                     debug!("Unloaded chunk {}", chunk_id);
                 }
@@ -136,7 +143,11 @@ impl World {
         let block_chunk = (coord.x as f32 / CHUNK_SIZE as f32).floor() as i32;
         if self.chunk_exists(block_chunk) {
             if let Some(chunk) = self.chunks.get(&block_chunk) {
-                chunk.blocks.get(&IVec2::new(&coord.x / CHUNK_SIZE, &coord.y / CHUNK_SIZE)).unwrap().clone()
+                chunk
+                    .blocks
+                    .get(&IVec2::new(&coord.x / CHUNK_SIZE, &coord.y / CHUNK_SIZE))
+                    .unwrap()
+                    .clone()
             } else {
                 Block::air(coord)
             }
@@ -216,7 +227,7 @@ impl Chunk {
                 .get_entity(chunk_entity)
                 .unwrap()
                 .add_child(temp_block);
-        };
+        }
         self.entity = Some(chunk_entity);
         chunk_entity
     }
