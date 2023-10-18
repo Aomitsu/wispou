@@ -14,5 +14,5 @@ bevy_rapier2d = { version = "*", features = [ "simd-stable", "debug-render-2d", 
 rand = "0.8"
 log = "0.4"
 
-[profile.dev.package.bevy_rapier3d]
+[profile.dev.package.bevy_rapier2d]
 opt-level = 3

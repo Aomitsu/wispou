@@ -98,11 +98,6 @@ impl World {
         self.chunks.contains_key(&chunk_id)
     }
 
-    /*pub fn update(&self, mut commands: &mut Commands, asset_server: Res<AssetServer>) {
-        for ele in &self.chunks {
-            ele.1.generate(&mut commands, self.entity, &asset_server);
-        }
-    }*/
     pub fn load_chunk(
         &mut self,
         chunk_id: i32,
@@ -124,6 +119,7 @@ impl World {
         }
         self
     }
+    
     pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {

@@ -22,7 +22,9 @@ pub fn move_character(
         texture_atlas_sprite.flip_x = false;
     }
     if keyboard.just_pressed(KeyCode::Space) {
-        impulse.impulse = Vec2::new(0.0, 400.0);
+        if playervelocity.linvel.y < 1.0 && playervelocity.linvel.y > -1.0 {
+            impulse.impulse = Vec2::new(0.0, 400.0);
+        }
     }
 
     /*if keyboard.just_released(KeyCode::Left) {
