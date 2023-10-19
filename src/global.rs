@@ -1,5 +1,6 @@
-use crate::map::{PlayerCoords, World};
 use bevy::prelude::*;
+
+use crate::map::world::{PlayerCoords, World};
 
 #[derive(Resource, Default, Clone)]
 pub struct GlobalRessources {

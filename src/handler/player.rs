@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     global::GlobalRessources,
-    map::{PlayerCoords, BLOCK_SIZE, CHUNK_SIZE},
+    map::world::{PlayerCoords, BLOCK_SIZE, CHUNK_SIZE},
 };
 
 #[derive(Component)]

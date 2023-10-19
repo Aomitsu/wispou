@@ -4,6 +4,11 @@ use bevy::{prelude::*};
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
+use super::{
+    chunk::Chunk,
+    block::{BlockType, Block}
+};
+
 
 
 pub const CHUNK_SIZE: i32 = 16;
@@ -21,12 +26,6 @@ pub enum MapType {
     Flat,
     Perlin,
 }
-#[derive(Clone, Copy, Debug)]
-pub enum BlockType {
-    Dirt,
-    Grass,
-    Air,
-}
 
 #[derive(Component)]
 pub struct WorldComponent;
@@ -37,24 +36,8 @@ pub struct World {
     chunks: HashMap<i32, Chunk>,
     entity: Entity,
 }
-#[derive(Component)]
-pub struct ChunkComponent;
-#[derive(Debug, Clone)]
-pub struct Chunk {
-    world_relative_vec: IVec2,
-    blocks: HashMap<IVec2, Block>,
-    chunk_id: i32,
-    /// Doesn't exist if the chunk is not loaded
-    entity: Option<Entity>,
-}
-#[derive(Component)]
-pub struct BlockComponent;
 
-#[derive(Debug, Clone)]
-pub struct Block {
-    chunk_relative_vec: IVec2,
-    block_type: BlockType,
-}
+
 
 impl World {
     pub fn new(map_type: MapType, mut seed: Option<i32>, commands: &mut Commands) -> Self {
@@ -121,6 +104,7 @@ impl World {
     }
     
     pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
+        // TODO: ¨Put this code into Chunk
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
                 if let Some(chunk_entity) = chunk.entity {
@@ -153,93 +137,3 @@ impl World {
     }
 }
 
-impl Chunk {
-    pub fn new(chunk_id: i32) -> Self {
-        Self {
-            world_relative_vec: IVec2 {
-                x: chunk_id as i32 * 16,
-                y: 0,
-            },
-            blocks: HashMap::new(),
-            chunk_id,
-            entity: None,
-        }
-    }
-    pub fn fill_blocks(&mut self, block_type: BlockType, from: Vec2, to: Vec2) -> &mut Self {
-        for x in from.x.floor() as i32..=to.x.floor() as i32 {
-            for y in from.y.floor() as i32..=to.y.floor() as i32 {
-                let coord = IVec2::new(x as i32, y as i32);
-                let block = Block::new(block_type.clone(), coord);
-                self.blocks.insert(coord, block);
-            }
-        }
-        self
-    }
-    pub fn generate(
-        &mut self,
-        commands: &mut Commands,
-        _world_entity: Entity,
-        asset_server: &Res<AssetServer>,
-    ) -> Entity {
-        let texture_dirt_handle: Handle<Image> = asset_server.load("dirt.png");
-        let texture_grass_handle: Handle<Image> = asset_server.load("grass.png");
-        //commands.get_entity(world_entity).unwrap().add_child(child);
-        let chunk_entity = commands
-            .spawn((
-                SpatialBundle {
-                    //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
-                    transform: Transform::from_xyz(
-                        (64.0 * 16.0) * self.chunk_id as f32,
-                        -200.0,
-                        0.0,
-                    ),
-                    ..default()
-                },
-                ChunkComponent,
-            ))
-            .id();
-        for (coord, block) in &self.blocks {
-            let temp_block = commands
-                .spawn((
-                    SpriteBundle {
-                        texture: match block.block_type {
-                            BlockType::Dirt => texture_dirt_handle.clone(),
-                            BlockType::Grass => texture_grass_handle.clone(),
-                            _ => texture_dirt_handle.clone(),
-                        },
-                        //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
-                        transform: Transform::from_xyz(
-                            coord.x as f32 * 64.0,
-                            coord.y as f32 * 64.0,
-                            0.0,
-                        ),
-                        ..default()
-                    },
-                    RigidBody::Fixed,
-                    Collider::cuboid(32.0, 32.0),
-                ))
-                .id();
-            commands
-                .get_entity(chunk_entity)
-                .unwrap()
-                .add_child(temp_block);
-        }
-        self.entity = Some(chunk_entity);
-        chunk_entity
-    }
-}
-
-impl Block {
-    pub fn new(block_type: BlockType, chunk_coord: IVec2) -> Self {
-        Self {
-            chunk_relative_vec: chunk_coord,
-            block_type,
-        }
-    }
-    pub fn air(chunk_coord: IVec2) -> Self {
-        Self {
-            chunk_relative_vec: chunk_coord,
-            block_type: BlockType::Air,
-        }
-    }
-}

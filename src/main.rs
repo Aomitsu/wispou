@@ -7,7 +7,7 @@ use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use dotenv::dotenv;
 use global::GlobalRessources;
-use map::MapType;
+use map::world::MapType;
 
 use crate::handler::player;
 
@@ -59,5 +59,5 @@ fn main() {
 fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
     commands.spawn((Camera2dBundle::default(), Camera));
     // Create the map::World instance
-    globalres.world = Some(map::World::new(MapType::Flat, None, &mut commands));
+    globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
 }
