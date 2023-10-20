@@ -1,3 +1,9 @@
+/*
+    “La vie, tu sais, donne raison à l'envie.
+        On dit le café énerve, un jour on s'aperçoit qu'il calme... “
+                                                            - Cléo de 5 à 7
+*/
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 

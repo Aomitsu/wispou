@@ -1,7 +1,24 @@
+/*
+    ”Tout petit déjà, on se demande en sois, comment tourne le monde si il en a le choix.
+        A voir ces adultes sur leur chemin de croix, si c'est bien l'Homme le maître, si il n'est pas la proie.
+        Jeune ado voilà que l'on se prends pour le roi, on se dit que notre destin, nous en traçeront la voie.
+        Sur notre trône de zinc nous nous tenons bien droit, assez fort pour dompter le grand cheval de bois,
+        Oui mais voici le jour venu et même en avance, le moment tant attendu de rentrer dans la dance,
+        Nous avions convenus d'une vie de jouissance et nous voilà dans les rues, perds dans l'espérance.
+        Ce qui est advenu, nul n'en avait conscience, notre vie nous échappe et même la Science,
+        est inéfficace à ravire notre conscience, elle a perdue sa place, en choquant son audience.
+
+        La vie est belle,
+        Dans ses joies comme ses chaînes,
+        Elle nous appelle, et nous lâche dans l'arène,
+        La vie est telle, le sang qui pulse dans nos veines
+            Elle nous rappèle que c'est ce qu'elle en vaut la peine[...]”
+                                                                                - Titouan, La vie est Belle
+*/
+
 use std::collections::HashMap;
 
 use bevy::{prelude::*};
-use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 
 use super::{
@@ -38,7 +55,9 @@ pub struct World {
 }
 
 
-
+/// Gestion du Monde
+/// 
+/// Officiellement le pire code de ma carrière
 impl World {
     pub fn new(map_type: MapType, mut seed: Option<i32>, commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
@@ -77,6 +96,7 @@ impl World {
         }
         self
     }
+
     pub fn chunk_exists(&self, chunk_id: i32) -> bool {
         self.chunks.contains_key(&chunk_id)
     }
@@ -104,7 +124,7 @@ impl World {
     }
     
     pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
-        // TODO: ¨Put this code into Chunk
+        // TODO: Put this code into Chunk
         if self.chunk_exists(chunk_id) {
             if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
                 if let Some(chunk_entity) = chunk.entity {

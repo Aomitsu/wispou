@@ -6,6 +6,11 @@ use bevy_egui::{egui, EguiContexts};
 
 use crate::handler::player::Player;
 
+/// UI De Debug
+/// 
+/// Sera disponible dans la version finale sous simple perssion du F5
+/// 
+/// A voir si on peux y ajouter l'UI de debug des collisions
 pub fn debug_ui(
     mut contexts: EguiContexts,
     diagnostics: Res<DiagnosticsStore>,
@@ -17,6 +22,9 @@ pub fn debug_ui(
         .min_width(200.0)
         .show(contexts.ctx_mut(), |ui| {
             ui.heading("Wispou DebugUI");
+            /*
+                FPS / GRAPHIC ENGINE RELATED
+             */
             if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
                 ui.label(format!("RAW FPS: {:?}", fps.value().unwrap_or(0.0).floor()));
                 ui.label(format!(
@@ -28,6 +36,9 @@ pub fn debug_ui(
                     fps.smoothed().unwrap_or(0.0).floor()
                 ));
             }
+            /*
+                JOUEUR
+             */
             ui.separator();
             ui.label("Player");
             ui.label(format!("Pixel X: {:?}", transform_player.translation().x));

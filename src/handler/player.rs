@@ -1,3 +1,8 @@
+/*
+    ”Insomnie d'amour, plus chaude a minuit qu'au soleil en pleins jour”
+                                                        - Aladdin, 1992
+*/
+
 use bevy::{prelude::*};
 use bevy_rapier2d::prelude::*;
 

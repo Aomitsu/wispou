@@ -1,3 +1,8 @@
+/*
+    ”Mon projet préféré ? C'est le prochain.”
+                             - Frank Lloyd Wright
+*/
+
 use bevy::{
     diagnostic::{FrameTimeDiagnosticsPlugin},
     prelude::*,
@@ -20,6 +25,20 @@ mod utils;
 #[derive(Component)]
 struct Camera;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States)]
+enum AppState {
+    MainMenu,
+    InGame
+}
+impl Default for AppState {
+    fn default() -> Self {
+        AppState::MainMenu
+    }
+}
+
+/// Wispou
+/// 
+/// An epic 2D game, an improved, rust-based recreation of a video game created by [Aywen](https://www.youtube.com/@aywenvideos) 
 fn main() {
     dotenv().ok();
     print!("Hello Wispou ! V 0.0.1");
@@ -37,11 +56,16 @@ fn main() {
                 })
                 .set(ImagePlugin::default_nearest()),
         )
+        // App state, pour gérer le menu et le jeu différemment
+        .add_state::<AppState>()
+        // Global ressources //
         .insert_resource(global::GlobalRessources::new())
+        // Plugins //
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        // GAME Systems //
         .add_systems(Startup, (setup, handler::player::spawn_player))
         .add_systems(
             Update,
@@ -53,11 +77,14 @@ fn main() {
                 player::update_player_world,
             ),
         )
+
+        // Let's f-cking go !!
         .run();
 }
 
 fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
+    // Initialisation de la caméra
     commands.spawn((Camera2dBundle::default(), Camera));
-    // Create the map::World instance
+    // Création du monde ( temporaire )
     globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
 }

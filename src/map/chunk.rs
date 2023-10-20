@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_rapier2d::prelude::*;
 
-use super::block::{Block, BlockType};
+use super::{block::{Block, BlockType}, world::World};
 
 #[derive(Component)]
 pub struct ChunkComponent;
@@ -92,10 +92,7 @@ impl Chunk {
         self.entity = Some(chunk_entity);
         chunk_entity
     }
-    pub fn reload_collisions(&mut self, commands: &mut Commands) {
-        if let Some(chunk_entity) = self.entity {
-            
-        }
+    pub fn reload_collisions(&mut self, commands: &mut Commands, world: World) {
     }
 }
 
