@@ -21,36 +21,25 @@ use std::collections::HashMap;
 use bevy::{prelude::*};
 use rand::prelude::*;
 
+use crate::map::{ChunkComponent, BLOCK_SIZE, CHUNK_SIZE};
+
 use super::{
     chunk::Chunk,
-    block::{BlockType, Block}
+    block::{BlockType, Block}, MapType, WispouWorldComponent
 };
 
-
-
-pub const CHUNK_SIZE: i32 = 16;
-pub const BLOCK_SIZE: i32 = 64;
-
-#[derive(Debug, Clone)]
-pub struct PlayerCoords {
-    pub x: f32,
-    pub y: f32,
-    pub chunk_id: i32,
-}
-
-#[derive(Debug, Clone)]
-pub enum MapType {
-    Flat,
-    Perlin,
-}
-
-#[derive(Component)]
-pub struct WorldComponent;
+/// La structure du monde
 #[derive(Component, Debug, Clone)]
-pub struct World {
+pub struct WispouWorld {
+    /// Seed, définissant la rng du monde
     seed: i32,
+    /// Type de map
     map_type: MapType,
+    /// Base de donnée des chunks
     chunks: HashMap<i32, Chunk>,
+    /// Liste des chunks générés
+    generated_chunks: Vec<i32>,
+    /// Entité bevy du monde
     entity: Entity,
 }
 
@@ -58,24 +47,91 @@ pub struct World {
 /// Gestion du Monde
 /// 
 /// Officiellement le pire code de ma carrière
-impl World {
+impl WispouWorld {
     pub fn new(map_type: MapType, mut seed: Option<i32>, commands: &mut Commands) -> Self {
         let mut rng = rand::thread_rng();
         if seed.is_none() {
             seed = Some(rng.gen_range((10 * 10_i32.pow(2))..(10 * 10_i32.pow(8))));
         };
 
-        let entity_id = commands.spawn(WorldComponent).id();
+        let entity_id = commands.spawn(WispouWorldComponent).id();
 
         Self {
             seed: seed.unwrap(),
             map_type,
             chunks: HashMap::new(),
             entity: entity_id,
+            generated_chunks: Vec::new(),
         }
     }
 
-    pub fn generate_chunk(&mut self, chunk_id: i32) -> &mut Self {
+    pub fn load_chunk(&mut self, chunk_id: i32) -> &mut Self {
+        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+            debug!("Chunk {} already loaded !", chunk_id)
+        } else {
+            // TODO: Check if chunk exists in save file
+            // Generate then load.
+            let new_chunk = Chunk::new(chunk_id).generate(self.map_type, self.seed);
+            self.chunks.insert(chunk_id, *new_chunk);
+            debug!("Chunk {} loaded !", chunk_id)
+        }
+        self
+    }
+    pub fn unload_chunk(&mut self, chunk_id: i32) -> &mut Self {
+        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+            // TODO: self.kill_chunk()
+            self.chunks.remove(&chunk_id);
+            debug!("Chunk {} unloaded !", chunk_id)
+        } else {
+            debug!("Chunk {} already unloaded !", chunk_id)
+        }
+        self
+    }
+
+    pub fn summon_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
+        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+            
+            let chunk_entity = commands.spawn((
+                SpatialBundle {
+                    //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
+                    transform: Transform::from_xyz(
+                        (BLOCK_SIZE * CHUNK_SIZE * chunk_id) as f32,
+                        0.0,
+                        0.0,
+                    ),
+                    ..default()
+                },
+                ChunkComponent,
+            )).id();
+            
+            for block in chunk.blocks {
+                let temp_block = commands
+                .spawn((
+                    SpriteBundle {
+                        texture: ,
+                        //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
+                        transform: Transform::from_xyz(
+                            (block.0.x * BLOCK_SIZE) as f32,
+                            (block.0.y * BLOCK_SIZE) as f32,
+                            0.0,
+                        ),
+                        ..default()
+                    },
+                ))
+                .id();
+            }
+
+            commands.get_entity(self.entity).unwrap().add_child(chunk_entity);
+            debug!("Chunk {} Summoned !", chunk_id)
+        } else {
+            debug!("Chunk {} not Summoned ! It doesn't exist, load it first !!!", chunk_id)
+        }
+        self
+    }
+
+
+
+    /*pub fn generate_chunk(&mut self, chunk_id: i32) -> &mut Self {
         if self.chunks.contains_key(&chunk_id) {
             panic!("Chunk already exists")
         }
@@ -155,5 +211,6 @@ impl World {
             Block::air(coord)
         }
     }
+*/
 }
 

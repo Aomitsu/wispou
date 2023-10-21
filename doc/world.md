@@ -28,7 +28,7 @@ Block {
     entity: Entity,
     ---
 
-    fn destroy() <- Détruire le block
+    fn destroy() <- Détruire le block dans la mémoire, il sera update ensuite
 }
 ```
 ---
@@ -51,8 +51,10 @@ enum MapType {
 
 }
 World {
+    seed: i32,
     chunks: HashMap<IVec2, Chunk> <- IVec2 = Coordonées relative au chunk
     entity: Entity,
+    save_sata: SaveData, TODO: A DEFINIR
 
     fn new(chunk_id, MapType, seed) <- Créer un monde
     fn load_chunk(id)               <- Charger dans la mémoire un chunk
