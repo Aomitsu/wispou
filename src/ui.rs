@@ -2,7 +2,7 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{egui::{self, Align2, Frame}, EguiContexts};
 
 use crate::handler::player::Player;
 
@@ -58,13 +58,18 @@ pub fn debug_ui(
         });
 }
 
-const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-const HOVERED_BUTTON: Color = Color::rgb(0.25, 0.25, 0.25);
-const PRESSED_BUTTON: Color = Color::rgb(0.35, 0.75, 0.35);
 
 pub fn start_menu(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    mut contexts: EguiContexts,
 ) {
-    
+    // Because Bevy basic UI plugin sucks, I want to use temporary egui.
+    egui::CentralPanel::default()
+        .frame(
+            egui::Frame::none()
+            .fill(egui::Color32::RED)
+        )
+        .show(contexts.ctx_mut(), |ui|{
+            ui.heading("Wispou");
+            ui.button("Start")
+        });
 }

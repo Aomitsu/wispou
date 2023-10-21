@@ -83,7 +83,7 @@ fn main() {
 
         // MAIN MENU SYSTEM //
 
-        .add_systems(Startup, ui::start_menu)
+        .add_systems(Update, ui::start_menu)
 
         // Let's f-cking go !!
         .run();
