@@ -65,8 +65,11 @@ fn main() {
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        // STARUP //
+        .add_systems(Startup, setup)
         // GAME Systems //
-        .add_systems(Startup, (setup, handler::player::spawn_player))
+        /* 
+        .add_systems(Startup, handler::player::spawn_player)
         .add_systems(
             Update,
             (
@@ -76,15 +79,17 @@ fn main() {
                 player::update_player,
                 player::update_player_world,
             ),
-        )
+        )*/
+
+        // MAIN MENU SYSTEM //
+
+        .add_systems(Startup, ui::start_menu)
 
         // Let's f-cking go !!
         .run();
 }
-
 fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
-    // Initialisation de la caméra
     commands.spawn((Camera2dBundle::default(), Camera));
-    // Création du monde ( temporaire )
-    globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
+    // Create the map::World instance
+    //globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
 }
