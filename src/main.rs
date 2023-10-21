@@ -68,7 +68,7 @@ fn main() {
         // STARUP //
         .add_systems(Startup, setup)
         // GAME Systems //
-        /* 
+        
         .add_systems(Startup, handler::player::spawn_player)
         .add_systems(
             Update,
@@ -79,11 +79,11 @@ fn main() {
                 player::update_player,
                 player::update_player_world,
             ),
-        )*/
+        )
 
         // MAIN MENU SYSTEM //
 
-        .add_systems(Update, ui::start_menu)
+        //.add_systems(Update, ui::start_menu)
 
         // Let's f-cking go !!
         .run();
@@ -91,5 +91,5 @@ fn main() {
 fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
     commands.spawn((Camera2dBundle::default(), Camera));
     // Create the map::World instance
-    //globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
+    globalres.world = Some(map::world::World::new(MapType::Flat, None, &mut commands));
 }

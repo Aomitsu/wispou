@@ -93,6 +93,7 @@ impl Chunk {
         chunk_entity
     }
     pub fn reload_collisions(&mut self, commands: &mut Commands, world: World) {
+        
     }
 }
 
