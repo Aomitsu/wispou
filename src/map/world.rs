@@ -16,7 +16,7 @@
                                                                                 - Titouan, La vie est Belle
 */
 
-use std::{collections::HashMap, path::PathBuf, str::FromStr};
+use std::{collections::HashMap};
 
 use bevy::prelude::*;
 use rand::prelude::*;
@@ -24,7 +24,6 @@ use rand::prelude::*;
 use crate::map::{ChunkComponent, BLOCK_SIZE, CHUNK_SIZE};
 
 use super::{
-    block::{Block, BlockType},
     chunk::Chunk,
     MapType, WispouWorldComponent,
 };
@@ -66,7 +65,7 @@ impl WispouWorld {
     }
 
     pub fn load_chunk(&mut self, chunk_id: i32) -> &mut Self {
-        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+        if let Some(_chunk) = self.chunks.get_mut(&chunk_id) {
             debug!("Chunk {} already loaded !", chunk_id)
         } else {
             // TODO: Check if chunk exists in save file
@@ -79,7 +78,7 @@ impl WispouWorld {
         self
     }
     pub fn unload_chunk(&mut self, chunk_id: i32) -> &mut Self {
-        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+        if let Some(_chunk) = self.chunks.get_mut(&chunk_id) {
             // TODO: self.kill_chunk()
             self.chunks.remove(&chunk_id);
             debug!("Chunk {} unloaded !", chunk_id)
@@ -113,7 +112,7 @@ impl WispouWorld {
 
             for block in &chunk.blocks {
                 // block.1.block_type.texture.unwrap()
-                let temp_block = commands
+                let _temp_block = commands
                     .spawn((SpriteBundle {
                         texture: asset_server.load(block.1.block_type.texture.clone().unwrap()),
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),

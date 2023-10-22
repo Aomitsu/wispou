@@ -1,5 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
-use bevy_rapier2d::prelude::*;
+
 
 use super::{
     block::{Block, BlockType},
@@ -21,7 +21,7 @@ impl Chunk {
             entity: None,
         }
     }
-    pub fn generate(&mut self, map_type: MapType, seed: i32) -> &mut Self {
+    pub fn generate(&mut self, map_type: MapType, _seed: i32) -> &mut Self {
         match map_type {
             MapType::Flat => {
                 self.fill_blocks(

@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
 };
 use bevy_egui::{
-    egui::{self, Align2, Frame},
+    egui::{self},
     EguiContexts,
 };
 

@@ -43,13 +43,13 @@ pub struct Block {
 }
 
 impl Block {
-    pub fn new(block_type: BlockType, chunk_coord: IVec2) -> Self {
+    pub fn new(block_type: BlockType, _chunk_coord: IVec2) -> Self {
         Self {
             block_type,
             entity: None,
         }
     }
-    pub fn air(chunk_coord: IVec2) -> Self {
+    pub fn air(_chunk_coord: IVec2) -> Self {
         Self {
             block_type: BlockType::default(),
             entity: None,
