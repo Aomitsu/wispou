@@ -33,8 +33,6 @@ impl BlockType {
     }
 }
 
-
-
 #[derive(Component)]
 pub struct BlockComponent;
 

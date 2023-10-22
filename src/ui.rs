@@ -2,14 +2,17 @@ use bevy::{
     diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
     prelude::*,
 };
-use bevy_egui::{egui::{self, Align2, Frame}, EguiContexts};
+use bevy_egui::{
+    egui::{self, Align2, Frame},
+    EguiContexts,
+};
 
 use crate::handler::player::Player;
 
 /// UI De Debug
-/// 
+///
 /// Sera disponible dans la version finale sous simple perssion du F5
-/// 
+///
 /// A voir si on peux y ajouter l'UI de debug des collisions
 pub fn debug_ui(
     mut contexts: EguiContexts,
@@ -23,8 +26,8 @@ pub fn debug_ui(
         .show(contexts.ctx_mut(), |ui| {
             ui.heading("Wispou DebugUI");
             /*
-                FPS / GRAPHIC ENGINE RELATED
-             */
+               FPS / GRAPHIC ENGINE RELATED
+            */
             if let Some(fps) = diagnostics.get(FrameTimeDiagnosticsPlugin::FPS) {
                 ui.label(format!("RAW FPS: {:?}", fps.value().unwrap_or(0.0).floor()));
                 ui.label(format!(
@@ -37,8 +40,8 @@ pub fn debug_ui(
                 ));
             }
             /*
-                JOUEUR
-             */
+               JOUEUR
+            */
             ui.separator();
             ui.label("Player");
             ui.label(format!("Pixel X: {:?}", transform_player.translation().x));
@@ -58,17 +61,11 @@ pub fn debug_ui(
         });
 }
 
-
-pub fn start_menu(
-    mut contexts: EguiContexts,
-) {
+pub fn start_menu(mut contexts: EguiContexts) {
     // Because Bevy basic UI plugin sucks, I want to use temporary egui.
     egui::CentralPanel::default()
-        .frame(
-            egui::Frame::none()
-            .fill(egui::Color32::RED)
-        )
-        .show(contexts.ctx_mut(), |ui|{
+        .frame(egui::Frame::none().fill(egui::Color32::RED))
+        .show(contexts.ctx_mut(), |ui| {
             ui.heading("Wispou");
             ui.button("Start")
         });

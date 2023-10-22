@@ -3,16 +3,12 @@
                              - Frank Lloyd Wright
 */
 
-use bevy::{
-    diagnostic::{FrameTimeDiagnosticsPlugin},
-    prelude::*,
-    window::PresentMode,
-};
+use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*, window::PresentMode};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::prelude::*;
 use dotenv::dotenv;
 use global::GlobalRessources;
-use map::world::{WispouWorld};
+use map::world::WispouWorld;
 
 use crate::handler::player;
 
@@ -28,7 +24,7 @@ struct Camera;
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States)]
 enum AppState {
     MainMenu,
-    InGame
+    InGame,
 }
 impl Default for AppState {
     fn default() -> Self {
@@ -37,8 +33,8 @@ impl Default for AppState {
 }
 
 /// Wispou
-/// 
-/// An epic 2D game, an improved, rust-based recreation of a video game created by [Aywen](https://www.youtube.com/@aywenvideos) 
+///
+/// An epic 2D game, an improved, rust-based recreation of a video game created by [Aywen](https://www.youtube.com/@aywenvideos)
 fn main() {
     dotenv().ok();
     print!("Hello Wispou ! V 0.0.1");
@@ -68,7 +64,6 @@ fn main() {
         // STARUP //
         .add_systems(Startup, setup)
         // GAME Systems //
-        
         .add_systems(Startup, handler::player::spawn_player)
         .add_systems(
             Update,
@@ -80,18 +75,13 @@ fn main() {
                 player::update_player_world,
             ),
         )
-
         // MAIN MENU SYSTEM //
-
         //.add_systems(Update, ui::start_menu)
-
         // Let's f-cking go !!
         .run();
 }
 fn setup(mut commands: Commands, mut globalres: ResMut<GlobalRessources>) {
     commands.spawn((Camera2dBundle::default(), Camera));
     // Create the map::World instance
-    globalres.world = Some(
-        WispouWorld::new(map::MapType::Flat, None, &mut commands)
-    );
+    globalres.world = Some(WispouWorld::new(map::MapType::Flat, None, &mut commands));
 }

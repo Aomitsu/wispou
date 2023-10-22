@@ -5,12 +5,12 @@
 
 use bevy::prelude::*;
 
-use crate::map::{world::{WispouWorld}, PlayerCoords};
+use crate::map::{world::WispouWorld, PlayerCoords};
 
 /// GlobalRessources
-/// 
+///
 /// Variable globale accessible par tout les systèmes, en local.
-/// 
+///
 /// Ici on y stock le monde, ainsi que les coordonnées du joueur local pour les rendre accessible facilement.
 #[derive(Resource, Default, Clone)]
 pub struct GlobalRessources {

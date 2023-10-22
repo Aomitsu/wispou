@@ -18,14 +18,15 @@
 
 use std::{collections::HashMap, path::PathBuf, str::FromStr};
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use rand::prelude::*;
 
 use crate::map::{ChunkComponent, BLOCK_SIZE, CHUNK_SIZE};
 
 use super::{
+    block::{Block, BlockType},
     chunk::Chunk,
-    block::{BlockType, Block}, MapType, WispouWorldComponent
+    MapType, WispouWorldComponent,
 };
 
 /// La structure du monde
@@ -38,14 +39,13 @@ pub struct WispouWorld {
     /// Base de donnée des chunks
     chunks: HashMap<i32, Chunk>,
     /// Liste des chunks générés
-    generated_chunks: Vec<i32>,
+    displayed_chunks: Vec<i32>,
     /// Entité bevy du monde
     entity: Entity,
 }
 
-
 /// Gestion du Monde
-/// 
+///
 /// Officiellement le pire code de ma carrière
 impl WispouWorld {
     pub fn new(map_type: MapType, mut seed: Option<i32>, commands: &mut Commands) -> Self {
@@ -61,7 +61,7 @@ impl WispouWorld {
             map_type,
             chunks: HashMap::new(),
             entity: entity_id,
-            generated_chunks: Vec::new(),
+            displayed_chunks: Vec::new(),
         }
     }
 
@@ -89,27 +89,32 @@ impl WispouWorld {
         self
     }
 
-    pub fn summon_chunk(&mut self, chunk_id: i32, commands: &mut Commands, asset_server: &Res<AssetServer>) -> &mut Self {
+    pub fn summon_chunk(
+        &mut self,
+        chunk_id: i32,
+        commands: &mut Commands,
+        asset_server: &Res<AssetServer>,
+    ) -> &mut Self {
         if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
-            
-            let chunk_entity = commands.spawn((
-                SpatialBundle {
-                    //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
-                    transform: Transform::from_xyz(
-                        (BLOCK_SIZE * CHUNK_SIZE * chunk_id) as f32,
-                        0.0,
-                        0.0,
-                    ),
-                    ..default()
-                },
-                ChunkComponent,
-            )).id();
-            
+            let chunk_entity = commands
+                .spawn((
+                    SpatialBundle {
+                        //transform: Transform::from_xyz(self.chunk_id as f32 * 16.0, -200.0, 0.0),
+                        transform: Transform::from_xyz(
+                            (BLOCK_SIZE * CHUNK_SIZE * chunk_id) as f32,
+                            0.0,
+                            0.0,
+                        ),
+                        ..default()
+                    },
+                    ChunkComponent,
+                ))
+                .id();
+
             for block in &chunk.blocks {
                 // block.1.block_type.texture.unwrap()
                 let temp_block = commands
-                .spawn((
-                    SpriteBundle {
+                    .spawn((SpriteBundle {
                         texture: asset_server.load(block.1.block_type.texture.clone().unwrap()),
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
                         transform: Transform::from_xyz(
@@ -118,101 +123,110 @@ impl WispouWorld {
                             0.0,
                         ),
                         ..default()
-                    },
-                ))
-                .id();
+                    },))
+                    .id();
             }
 
-            commands.get_entity(self.entity).unwrap().add_child(chunk_entity);
+            commands
+                .get_entity(self.entity)
+                .unwrap()
+                .add_child(chunk_entity);
+
+            self.displayed_chunks.push(chunk_id);
             debug!("Chunk {} Summoned !", chunk_id)
         } else {
-            debug!("Chunk {} not Summoned ! It doesn't exist, load it first !!!", chunk_id)
+            debug!(
+                "Chunk {} not Summoned ! It doesn't exist, load it first !!!",
+                chunk_id
+            )
         }
         self
     }
 
 
+    pub fn chunk_summoned(&self, chunk_id: i32) -> bool {
+        self.displayed_chunks.contains(&chunk_id)
+    }
 
     /*pub fn generate_chunk(&mut self, chunk_id: i32) -> &mut Self {
-        if self.chunks.contains_key(&chunk_id) {
-            panic!("Chunk already exists")
-        }
-        match self.map_type {
-            MapType::Flat => {
-                let mut chunk = Chunk::new(chunk_id);
-                chunk.fill_blocks(
-                    BlockType::Grass,
-                    Vec2::new(0.0, 64.0),
-                    Vec2::new(15.0, 64.0),
-                );
-                chunk.fill_blocks(BlockType::Dirt, Vec2::new(0.0, 60.0), Vec2::new(15.0, 63.0));
-
-                self.chunks.insert(chunk_id, chunk);
-                debug!("Generated chunk {}", chunk_id);
+            if self.chunks.contains_key(&chunk_id) {
+                panic!("Chunk already exists")
             }
-            MapType::Perlin => todo!("Perlin generation is not possible yet"),
+            match self.map_type {
+                MapType::Flat => {
+                    let mut chunk = Chunk::new(chunk_id);
+                    chunk.fill_blocks(
+                        BlockType::Grass,
+                        Vec2::new(0.0, 64.0),
+                        Vec2::new(15.0, 64.0),
+                    );
+                    chunk.fill_blocks(BlockType::Dirt, Vec2::new(0.0, 60.0), Vec2::new(15.0, 63.0));
+
+                    self.chunks.insert(chunk_id, chunk);
+                    debug!("Generated chunk {}", chunk_id);
+                }
+                MapType::Perlin => todo!("Perlin generation is not possible yet"),
+            }
+            self
         }
-        self
-    }
 
-    pub fn chunk_exists(&self, chunk_id: i32) -> bool {
-        self.chunks.contains_key(&chunk_id)
-    }
+        pub fn chunk_exists(&self, chunk_id: i32) -> bool {
+            self.chunks.contains_key(&chunk_id)
+        }
 
-    pub fn load_chunk(
-        &mut self,
-        chunk_id: i32,
-        commands: &mut Commands,
-        asset_server: &Res<AssetServer>,
-    ) -> &mut Self {
-        if self.chunk_exists(chunk_id) {
-            if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
-                if chunk.entity.is_none() {
-                    chunk.entity = Some(chunk.generate(commands, self.entity, &asset_server));
-                    debug!("Loaded chunk {}", chunk_id);
+        pub fn load_chunk(
+            &mut self,
+            chunk_id: i32,
+            commands: &mut Commands,
+            asset_server: &Res<AssetServer>,
+        ) -> &mut Self {
+            if self.chunk_exists(chunk_id) {
+                if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+                    if chunk.entity.is_none() {
+                        chunk.entity = Some(chunk.generate(commands, self.entity, &asset_server));
+                        debug!("Loaded chunk {}", chunk_id);
+                    }
+                } else {
+                    panic!("Chunk doesn't exist")
                 }
             } else {
-                panic!("Chunk doesn't exist")
+                self.generate_chunk(chunk_id)
+                    .load_chunk(chunk_id, commands, asset_server);
             }
-        } else {
-            self.generate_chunk(chunk_id)
-                .load_chunk(chunk_id, commands, asset_server);
+            self
         }
-        self
-    }
-    
-    pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
-        // TODO: Put this code into Chunk
-        if self.chunk_exists(chunk_id) {
-            if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
-                if let Some(chunk_entity) = chunk.entity {
-                    commands
-                        .get_entity(chunk_entity)
-                        .unwrap()
-                        .despawn_recursive();
-                    chunk.entity = None;
-                    debug!("Unloaded chunk {}", chunk_id);
+
+        pub fn unload_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
+            // TODO: Put this code into Chunk
+            if self.chunk_exists(chunk_id) {
+                if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+                    if let Some(chunk_entity) = chunk.entity {
+                        commands
+                            .get_entity(chunk_entity)
+                            .unwrap()
+                            .despawn_recursive();
+                        chunk.entity = None;
+                        debug!("Unloaded chunk {}", chunk_id);
+                    }
                 }
             }
+            self
         }
-        self
-    }
-    pub fn get_block(&self, coord: IVec2) -> Block {
-        let block_chunk = (coord.x as f32 / CHUNK_SIZE as f32).floor() as i32;
-        if self.chunk_exists(block_chunk) {
-            if let Some(chunk) = self.chunks.get(&block_chunk) {
-                chunk
-                    .blocks
-                    .get(&IVec2::new(&coord.x / CHUNK_SIZE, &coord.y / CHUNK_SIZE))
-                    .unwrap()
-                    .clone()
+        pub fn get_block(&self, coord: IVec2) -> Block {
+            let block_chunk = (coord.x as f32 / CHUNK_SIZE as f32).floor() as i32;
+            if self.chunk_exists(block_chunk) {
+                if let Some(chunk) = self.chunks.get(&block_chunk) {
+                    chunk
+                        .blocks
+                        .get(&IVec2::new(&coord.x / CHUNK_SIZE, &coord.y / CHUNK_SIZE))
+                        .unwrap()
+                        .clone()
+                } else {
+                    Block::air(coord)
+                }
             } else {
                 Block::air(coord)
             }
-        } else {
-            Block::air(coord)
         }
-    }
-*/
+    */
 }
-

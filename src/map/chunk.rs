@@ -1,7 +1,10 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_rapier2d::prelude::*;
 
-use super::{block::{Block, BlockType}, MapType, CHUNK_SIZE};
+use super::{
+    block::{Block, BlockType},
+    MapType, CHUNK_SIZE,
+};
 
 #[derive(Debug, Clone)]
 pub struct Chunk {
@@ -18,22 +21,18 @@ impl Chunk {
             entity: None,
         }
     }
-    pub fn generate(
-        &mut self,
-        map_type: MapType,
-        seed: i32,
-    ) -> &mut Self {
+    pub fn generate(&mut self, map_type: MapType, seed: i32) -> &mut Self {
         match map_type {
-            MapType::Flat => { 
+            MapType::Flat => {
                 self.fill_blocks(
-                    BlockType::grass(), 
-                    IVec2::new(0, 15), 
-                    IVec2::new(CHUNK_SIZE - 1, 15)
+                    BlockType::grass(),
+                    IVec2::new(0, 15),
+                    IVec2::new(CHUNK_SIZE - 1, 15),
                 );
                 self.fill_blocks(
-                    BlockType::dirt(), 
-                    IVec2::new(0, 12), 
-                    IVec2::new(CHUNK_SIZE - 1, 14)
+                    BlockType::dirt(),
+                    IVec2::new(0, 12),
+                    IVec2::new(CHUNK_SIZE - 1, 14),
                 );
             }
             MapType::Perlin => todo!("Perlin"),
@@ -56,5 +55,3 @@ impl Chunk {
     pub fn reload_collisions(&mut self, commands: &mut Commands, world: World) {
         */
 }
-
-

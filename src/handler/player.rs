@@ -3,7 +3,7 @@
                                                         - Aladdin, 1992
 */
 
-use bevy::{prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
@@ -72,13 +72,14 @@ pub fn update_player_world(
     if let Some(world) = world {
         if let Some(player_data) = player_data {
             let actual_chunk = player_data.chunk_id;
-            world
+            
+            if !world.chunk_summoned(actual_chunk) {
+                world
                 .load_chunk(actual_chunk)
-                .load_chunk(actual_chunk + 1)
-                .load_chunk(actual_chunk - 1)
                 .summon_chunk(actual_chunk, &mut commands, &asset_server);
-                //.unload_chunk(actual_chunk + 2)
-                //.unload_chunk(actual_chunk - 2);
+            }
+            //.unload_chunk(actual_chunk + 2)
+            //.unload_chunk(actual_chunk - 2);
         }
     }
 }
