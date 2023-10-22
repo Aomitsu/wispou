@@ -1,3 +1,6 @@
+> ⚠️ Suite à des différents avec les modérateurs du serveur d'Aywen, ce projet est à l'arrêt.
+
+
 # 🔥 Wispou
 **Concept:** An improved, rust-based recreation of a video game created by youtuber [Aywen](https://www.youtube.com/@aywenvideos).
 

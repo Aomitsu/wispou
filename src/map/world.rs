@@ -25,7 +25,7 @@ use crate::map::{ChunkComponent, BLOCK_SIZE, CHUNK_SIZE};
 
 use super::{
     chunk::Chunk,
-    MapType, WispouWorldComponent,
+    MapType, WispouWorldComponent, block::Block,
 };
 
 /// La structure du monde
@@ -53,7 +53,15 @@ impl WispouWorld {
             seed = Some(rng.gen_range((10 * 10_i32.pow(2))..(10 * 10_i32.pow(8))));
         };
 
-        let entity_id = commands.spawn(WispouWorldComponent).id();
+        let entity_id = commands.spawn((SpatialBundle {
+            transform: Transform::from_xyz(
+                0.0,
+                0.0,
+                0.0,
+            ),
+            ..default()
+        },
+            WispouWorldComponent)).id();
 
         Self {
             seed: seed.unwrap(),
@@ -112,7 +120,7 @@ impl WispouWorld {
 
             for block in &chunk.blocks {
                 // block.1.block_type.texture.unwrap()
-                let _temp_block = commands
+                let temp_block = commands
                     .spawn((SpriteBundle {
                         texture: asset_server.load(block.1.block_type.texture.clone().unwrap()),
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
@@ -124,6 +132,9 @@ impl WispouWorld {
                         ..default()
                     },))
                     .id();
+                commands.get_entity(chunk_entity)
+                    .unwrap()
+                    .add_child(temp_block);
             }
 
             commands
@@ -140,6 +151,27 @@ impl WispouWorld {
             )
         }
         self
+    }
+
+    pub fn update_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
+        if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
+            // 
+
+        } else {
+            debug!(
+                "Chunk {} not Summoned ! Load and summon it first.",
+                chunk_id
+            )
+        }
+
+        self
+    }
+
+    pub fn get_block(&self, coords: IVec2) -> Option<Block> {
+        self.chunks
+            .get(&(coords.x / CHUNK_SIZE))
+            .and_then(|chunk| chunk.blocks.get(&coords))
+            .cloned()
     }
 
 
