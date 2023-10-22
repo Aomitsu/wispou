@@ -1,19 +1,13 @@
 use bevy::prelude::*;
 
 #[derive(Clone, Debug)]
-pub enum BlockType {
-    Dirt(BlockParameters),
-    Grass(BlockParameters),
-    Air(BlockParameters),
-}
-#[derive(Clone, Debug)]
-pub struct BlockParameters {
+pub struct BlockType {
     pub transparent: Option<bool>,
     pub mining_level: Option<i8>,
     pub texture: Option<String>,
 }
 
-impl Default for BlockParameters {
+impl Default for BlockType {
     fn default() -> Self {
         Self {
             transparent: Some(true),
@@ -22,7 +16,7 @@ impl Default for BlockParameters {
         }
     }
 }
-impl BlockParameters {
+impl BlockType {
     pub fn grass() -> Self {
         Self {
             transparent: Some(false),
@@ -59,7 +53,7 @@ impl Block {
     }
     pub fn air(chunk_coord: IVec2) -> Self {
         Self {
-            block_type: BlockType::Air(BlockParameters::default()),
+            block_type: BlockType::default(),
             entity: None,
         }
     }

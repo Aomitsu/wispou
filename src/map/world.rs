@@ -16,7 +16,7 @@
                                                                                 - Titouan, La vie est Belle
 */
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf, str::FromStr};
 
 use bevy::{prelude::*};
 use rand::prelude::*;
@@ -71,8 +71,9 @@ impl WispouWorld {
         } else {
             // TODO: Check if chunk exists in save file
             // Generate then load.
-            let new_chunk = Chunk::new(chunk_id).generate(self.map_type, self.seed);
-            self.chunks.insert(chunk_id, *new_chunk);
+            let mut new_chunk = Chunk::new(chunk_id);
+            new_chunk.generate(self.map_type, self.seed);
+            self.chunks.insert(chunk_id, new_chunk.clone());
             debug!("Chunk {} loaded !", chunk_id)
         }
         self
@@ -88,7 +89,7 @@ impl WispouWorld {
         self
     }
 
-    pub fn summon_chunk(&mut self, chunk_id: i32, commands: &mut Commands) -> &mut Self {
+    pub fn summon_chunk(&mut self, chunk_id: i32, commands: &mut Commands, asset_server: &Res<AssetServer>) -> &mut Self {
         if let Some(chunk) = self.chunks.get_mut(&chunk_id) {
             
             let chunk_entity = commands.spawn((
@@ -104,11 +105,12 @@ impl WispouWorld {
                 ChunkComponent,
             )).id();
             
-            for block in chunk.blocks {
+            for block in &chunk.blocks {
+                // block.1.block_type.texture.unwrap()
                 let temp_block = commands
                 .spawn((
                     SpriteBundle {
-                        texture: ,
+                        texture: asset_server.load(block.1.block_type.texture.clone().unwrap()),
                         //transform: Transform::from_xyz(coord.x as f32 * 32.0, coord.y as f32 * 32.0, 0.0),
                         transform: Transform::from_xyz(
                             (block.0.x * BLOCK_SIZE) as f32,

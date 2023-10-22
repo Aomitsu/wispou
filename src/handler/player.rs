@@ -8,7 +8,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     global::GlobalRessources,
-    map::world::{PlayerCoords, BLOCK_SIZE, CHUNK_SIZE},
+    map::{PlayerCoords, BLOCK_SIZE, CHUNK_SIZE},
 };
 
 #[derive(Component)]
@@ -73,11 +73,12 @@ pub fn update_player_world(
         if let Some(player_data) = player_data {
             let actual_chunk = player_data.chunk_id;
             world
-                .load_chunk(actual_chunk, &mut commands, &asset_server)
-                .load_chunk(actual_chunk + 1, &mut commands, &asset_server)
-                .load_chunk(actual_chunk - 1, &mut commands, &asset_server)
-                .unload_chunk(actual_chunk + 2, &mut commands)
-                .unload_chunk(actual_chunk - 2, &mut commands);
+                .load_chunk(actual_chunk)
+                .load_chunk(actual_chunk + 1)
+                .load_chunk(actual_chunk - 1)
+                .summon_chunk(actual_chunk, &mut commands, &asset_server);
+                //.unload_chunk(actual_chunk + 2)
+                //.unload_chunk(actual_chunk - 2);
         }
     }
 }

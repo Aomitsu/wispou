@@ -1,7 +1,7 @@
 use bevy::{prelude::*, utils::HashMap};
 use bevy_rapier2d::prelude::*;
 
-use super::{block::{Block, BlockType, BlockParameters}, MapType, CHUNK_SIZE};
+use super::{block::{Block, BlockType}, MapType, CHUNK_SIZE};
 
 #[derive(Debug, Clone)]
 pub struct Chunk {
@@ -26,12 +26,12 @@ impl Chunk {
         match map_type {
             MapType::Flat => { 
                 self.fill_blocks(
-                    BlockType::Grass(BlockParameters::grass()), 
+                    BlockType::grass(), 
                     IVec2::new(0, 15), 
                     IVec2::new(CHUNK_SIZE - 1, 15)
                 );
                 self.fill_blocks(
-                    BlockType::Dirt(BlockParameters::dirt()), 
+                    BlockType::dirt(), 
                     IVec2::new(0, 12), 
                     IVec2::new(CHUNK_SIZE - 1, 14)
                 );
